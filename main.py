@@ -109,6 +109,7 @@ class Level_01(Level):
             [210, 32, 800, 500]
         ]
 
+
         for platform in level:
             block = Platform(platform[0], platform[1])
             block.rect.x = platform[2]
