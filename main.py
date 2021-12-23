@@ -1,4 +1,66 @@
-import pygame
+import pygame as pygame
+
+
+class Button:
+    def __init__(self, x, y, image, scale):
+        width = image.get_width()
+        height = image.get_height()
+        self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+
+    def draw(self, surface):
+        action = False
+        pygame.init()
+        pos = pygame.mouse.get_pos()
+
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and not self.clicked:
+                self.clicked = True
+                action = True
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            self.clicked = False
+        surface.blit(self.image, (self.rect.x, self.rect.y))
+        return action
+
+
+SCREEN_HEIGHT = 500
+SCREEN_WIDTH = 800
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Button Demo')
+
+start_img = pygame.image.load('start_btn.png').convert_alpha()
+exit_img = pygame.image.load('exit_btn.png').convert_alpha()
+
+is_start = False
+is_finish = False
+
+start_button = Button(100, 200, start_img, 0.8)
+exit_button = Button(450, 200, exit_img, 0.8)
+
+
+def menu():
+    global is_start
+    run = True
+    while run:
+        screen.fill((202, 228, 241))
+        if start_button.draw(screen):
+            is_start = True
+            return is_start
+        if exit_button.draw(screen):
+            return None
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+        pygame.display.update()
+
+
+menu()
 
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
@@ -109,7 +171,6 @@ class Level_01(Level):
             [210, 32, 800, 500]
         ]
 
-
         for platform in level:
             block = Platform(platform[0], platform[1])
             block.rect.x = platform[2]
@@ -118,7 +179,11 @@ class Level_01(Level):
             self.platform_list.add(block)
 
 
-def main():
+score = 0
+
+
+def main_Level1():
+    global score
     pygame.init()
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
     screen = pygame.display.set_mode(size)
@@ -145,6 +210,15 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     done = True
+
+            if player.rect.x == 0:
+                score += 1
+                print(score)
+                if score == 10:
+                    print('Win Score')
+                    main_Level2()
+                    return None
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
                     player.go_left()
@@ -180,4 +254,218 @@ def main():
     pygame.quit()
 
 
-main()
+class Level_02(Level):
+    def __init__(self, player):
+        Level.__init__(self, player)
+        level2 = [
+            [210, 100, 100, 900],
+            [210, 32, 1300, 300],
+            [210, 32, 200, 300],
+            [210, 32, 400, 700],
+            [210, 32, 800, 500]
+        ]
+
+        for platform in level2:
+            block = Platform(platform[0], platform[1])
+            block.rect.x = platform[2]
+            block.rect.y = platform[3]
+            block.player = self.player
+            self.platform_list.add(block)
+
+
+score02 = 0
+
+
+def main_Level2():
+    global score02
+    pygame.init()
+    size = [SCREEN_WIDTH, SCREEN_HEIGHT]
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption("Платформер")
+    player = Player()
+    level_list = [Level_02(player)]
+
+    current_level_no = 0
+    current_level = level_list[current_level_no]
+
+    active_sprite_list = pygame.sprite.Group()
+    player.level = current_level
+
+    player.rect.x = 340
+    player.rect.y = SCREEN_HEIGHT - player.rect.height
+    active_sprite_list.add(player)
+
+    done = False
+
+    clock = pygame.time.Clock()
+
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    done = True
+
+            if player.rect.x == 0:
+                score02 += 1
+                print(score02)
+                if score02 == 10:
+                    print('Win Score')
+                    Win()
+                    return None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    player.go_left()
+                    break
+                if event.key == pygame.K_d:
+                    player.go_right()
+                    break
+                if event.key == pygame.K_w:
+                    player.jump()
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT and player.change_x < 0:
+                    player.stop()
+                if event.key == pygame.K_RIGHT and player.change_x > 0:
+                    player.stop()
+
+        active_sprite_list.update()
+
+        current_level.update()
+
+        if player.rect.right > SCREEN_WIDTH:
+            player.rect.right = SCREEN_WIDTH
+
+        if player.rect.left < 0:
+            player.rect.left = 0
+
+        current_level.draw(screen)
+        active_sprite_list.draw(screen)
+
+        clock.tick(30)
+
+        pygame.display.flip()
+    pygame.quit()
+
+
+class ButtonsEnd:
+    def __init__(self, x, y, image, scale):
+        width = image.get_width()
+        height = image.get_height()
+        self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+
+    def draw(self, surface):
+        action = False
+        pygame.init()
+        pos = pygame.mouse.get_pos()
+
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and not self.clicked:
+                self.clicked = True
+                action = True
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            self.clicked = False
+        surface.blit(self.image, (self.rect.x, self.rect.y))
+        return action
+
+
+SCREEN_WIDTH1, SCREEN_HEIGHT1 = 800, 500
+
+screen1 = pygame.display.set_mode((SCREEN_WIDTH1, SCREEN_HEIGHT1))
+pygame.display.set_caption('Button Demo')
+
+exit_img = pygame.image.load('exit_btn.png').convert_alpha()
+
+pygame.font.init()
+
+GAME_OVER_FONT = pygame.freetype.Font("Ore_Crusher/orecrusherrotal.ttf", 75)
+textsurface = GAME_OVER_FONT.render('Some Text', False, (100, 100, 100))
+exit_button1 = Button(300, 300, exit_img, 0.8)
+is_finish1 = True
+
+
+def konec():
+    global is_finish1
+    run = True
+    while run:
+        screen.fill((0, 0, 0))
+        if exit_button1.draw(screen):
+            is_finish1 = True
+            return is_finish1
+        text_surface, rect = GAME_OVER_FONT.render("GAME OVER!", (255, 0, 0))
+        screen.blit(text_surface, (150, 100))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+        pygame.display.update()
+
+
+class ButtonsWin:
+    def __init__(self, x, y, image, scale):
+        width = image.get_width()
+        height = image.get_height()
+        self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+
+    def draw(self, surface):
+        action = False
+        pygame.init()
+        pos = pygame.mouse.get_pos()
+
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and not self.clicked:
+                self.clicked = True
+                action = True
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            self.clicked = False
+        surface.blit(self.image, (self.rect.x, self.rect.y))
+        return action
+
+
+pygame.display.set_caption('Win Window')
+
+exit_img = pygame.image.load('exit_btn.png').convert_alpha()
+
+pygame.font.init()
+
+WIN_FONT = pygame.freetype.Font("Ore_Crusher/orecrusherrotal.ttf", 75)
+textsurface1 = GAME_OVER_FONT.render('Some Text', False, (100, 100, 100))
+exit_button2 = Button(300, 300, exit_img, 0.8)
+
+
+def Win():
+    global is_finish2
+    SCREEN_WIDTH2, SCREEN_HEIGHT2 = 800, 500
+
+    screenWin = pygame.display.set_mode((SCREEN_WIDTH2, SCREEN_HEIGHT2))
+    run = True
+    while run:
+        screen.fill((0, 0, 0))
+        if exit_button2.draw(screen):
+            return None
+        text_surface, rect = GAME_OVER_FONT.render("YOU WIN!", (0, 255, 0))
+        screen.blit(text_surface, (200, 100))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+        pygame.display.update()
+
+
+if is_start:
+    is_start = False
+    main_Level1()
+elif is_finish1:
+    Win()
+
+pygame.quit()
