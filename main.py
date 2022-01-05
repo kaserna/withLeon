@@ -1,4 +1,8 @@
-import pygame as pygame
+import pygame
+
+pygame.mixer.init()
+pygame.init()
+pygame.mixer.music.load("Music.mp3")
 
 
 class Button:
@@ -179,14 +183,15 @@ class Level_01(Level):
             self.platform_list.add(block)
 
 
-score = 0
+score = 3
 
 
 def main_Level1():
-    global score
-    pygame.init()
+    global score, screen
+    timer = 0
+    font = pygame.freetype.Font("Ore_Crusher/orecrusherrotal.ttf", 75)
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
-    screen = pygame.display.set_mode(size)
+    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
     pygame.display.set_caption("Платформер")
     player = Player()
     level_list = [Level_01(player)]
@@ -200,12 +205,16 @@ def main_Level1():
     player.rect.x = 340
     player.rect.y = SCREEN_HEIGHT - player.rect.height
     active_sprite_list.add(player)
-
+    x_Cube = 1080
+    y_Cube = 1920
+    obr = False
     done = False
+    isLaser = False
+    hidingPos = (-100, -100)
 
     clock = pygame.time.Clock()
-
     while not done:
+        timer += 1
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
@@ -236,9 +245,7 @@ def main_Level1():
                     player.stop()
 
         active_sprite_list.update()
-
         current_level.update()
-
         if player.rect.right > SCREEN_WIDTH:
             player.rect.right = SCREEN_WIDTH
 
@@ -247,9 +254,17 @@ def main_Level1():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
+        if timer % 100 == 0:
+            pygame.draw.line(screen, (255, 0, 0), (0, 250), (1920, 250), 5)
+            if player.rect.y == 250:
+                score -= 1
+                text1 = font.render("Lives: " + str(score - 1), 1000, (255, 0, 0))
+        else:
+            pygame.draw.line(screen, (255, 0, 0), (0, 250), hidingPos, 5)
 
         clock.tick(30)
-
+        text1 = font.render("Lives: " + str(score), 1000, (255, 0, 0))
+        screen.blit(text1[0], (100, 50))
         pygame.display.flip()
     pygame.quit()
 
@@ -280,11 +295,10 @@ def main_Level2():
     global score02
     pygame.init()
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
-    screen = pygame.display.set_mode(size)
+    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
     pygame.display.set_caption("Платформер")
     player = Player()
     level_list = [Level_02(player)]
-
     current_level_no = 0
     current_level = level_list[current_level_no]
 
@@ -305,7 +319,7 @@ def main_Level2():
                 if event.key == pygame.K_1:
                     done = True
 
-            if player.rect.x == 0:
+            if player.rect.x == 100:
                 score02 += 1
                 print(score02)
                 if score02 == 10:
@@ -375,7 +389,7 @@ class ButtonsEnd:
 
 SCREEN_WIDTH1, SCREEN_HEIGHT1 = 800, 500
 
-screen1 = pygame.display.set_mode((SCREEN_WIDTH1, SCREEN_HEIGHT1))
+screen1 = pygame.display.set_mode((SCREEN_WIDTH1, SCREEN_HEIGHT1), pygame.FULLSCREEN)
 pygame.display.set_caption('Button Demo')
 
 exit_img = pygame.image.load('exit_btn.png').convert_alpha()
@@ -464,6 +478,7 @@ def Win():
 
 if is_start:
     is_start = False
+    pygame.mixer.music.play(1)
     main_Level1()
 elif is_finish1:
     Win()
