@@ -3,6 +3,18 @@ import pygame
 pygame.mixer.init()
 pygame.init()
 pygame.mixer.music.load("Music.mp3")
+notrectlaser = pygame.image.load("Laser.png")
+notrectlaser2 = pygame.image.load("Laser.png")
+arrow = pygame.image.load("downarrow.png")
+notrectarrow = pygame.transform.scale(arrow, (200, 200))
+notrectlaser = pygame.transform.scale(notrectlaser, (1920, 10))
+notrectlaser2 = pygame.transform.scale(notrectlaser2, (1920, 10))
+laser = notrectlaser.get_rect()
+laser2 = notrectlaser.get_rect()
+arrow = notrectarrow.get_rect()
+laser.x, laser.y = 0, 200
+laser2.x, laser2.y = 0, 600
+arrow.x, arrow.y = 200, 200
 
 
 class Button:
@@ -34,8 +46,9 @@ SCREEN_HEIGHT = 500
 SCREEN_WIDTH = 800
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('Button Demo')
-
+pygame.display.set_caption('Start')
+back = pygame.image.load('osnPfut.jpg')
+back = pygame.transform.scale(back, (800, 500))
 start_img = pygame.image.load('start_btn.png').convert_alpha()
 exit_img = pygame.image.load('exit_btn.png').convert_alpha()
 
@@ -50,11 +63,14 @@ def menu():
     global is_start
     run = True
     while run:
-        screen.fill((202, 228, 241))
+        screen.fill((202, 0, 100))
+        screen.blit(back, (0, 0))
         if start_button.draw(screen):
             is_start = True
             return is_start
         if exit_button.draw(screen):
+            pygame.quit()
+            exit(0)
             return None
 
         for event in pygame.event.get():
@@ -68,9 +84,7 @@ menu()
 
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
-
-bg = pygame.image.load('fon2.jpg')
-bg = pygame.transform.scale(bg, (1920, 1080))
+level = 1
 
 
 class Player(pygame.sprite.Sprite):
@@ -146,7 +160,12 @@ class Player(pygame.sprite.Sprite):
 class Platform(pygame.sprite.Sprite):
     def __init__(self, width, height):
         super().__init__()
-        self.image = pygame.image.load('platform2.png')
+        if level == 1:
+            self.image = pygame.image.load('platform2.png')
+        elif level == 2:
+            self.image = pygame.image.load('platform3.png')
+        elif level == 3:
+            self.image = pygame.image.load('platform4.png')
         self.image = pygame.transform.scale(self.image, (377, 56))
         self.rect = self.image.get_rect()
 
@@ -160,6 +179,15 @@ class Level(object):
         self.platform_list.update()
 
     def draw(self, screen):
+        if level == 1:
+            bg = pygame.image.load('fon.jpg')
+            bg = pygame.transform.scale(bg, (1920, 1080))
+        elif level == 2:
+            bg = pygame.image.load('fon2.jpg')
+            bg = pygame.transform.scale(bg, (1920, 1080))
+        elif level == 3:
+            bg = pygame.image.load('fon3.jpg')
+            bg = pygame.transform.scale(bg, (1920, 1080))
         screen.blit(bg, (0, 0))
         self.platform_list.draw(screen)
 
@@ -183,11 +211,11 @@ class Level_01(Level):
             self.platform_list.add(block)
 
 
-score = 3
+score = 5
 
 
 def main_Level1():
-    global score, screen
+    global score, screen, notrectlaser, level
     timer = 0
     font = pygame.freetype.Font("Ore_Crusher/orecrusherrotal.ttf", 75)
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
@@ -205,11 +233,7 @@ def main_Level1():
     player.rect.x = 340
     player.rect.y = SCREEN_HEIGHT - player.rect.height
     active_sprite_list.add(player)
-    x_Cube = 1080
-    y_Cube = 1920
-    obr = False
     done = False
-    isLaser = False
     hidingPos = (-100, -100)
 
     clock = pygame.time.Clock()
@@ -220,21 +244,23 @@ def main_Level1():
                 if event.key == pygame.K_1:
                     done = True
 
-            if player.rect.x == 0:
-                score += 1
-                print(score)
-                if score == 10:
-                    print('Win Score')
+            if player.rect.y == 200:
+                if score >= 1:
                     main_Level2()
+                    return None
+                else:
+                    konec()
                     return None
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
                     player.go_left()
                     break
+
                 if event.key == pygame.K_d:
                     player.go_right()
                     break
+
                 if event.key == pygame.K_w:
                     player.jump()
 
@@ -255,16 +281,20 @@ def main_Level1():
         current_level.draw(screen)
         active_sprite_list.draw(screen)
         if timer % 100 == 0:
-            pygame.draw.line(screen, (255, 0, 0), (0, 250), (1920, 250), 5)
-            if player.rect.y == 250:
+            screen.blit(notrectlaser, (0, 200))
+            if laser.colliderect(player):
                 score -= 1
-                text1 = font.render("Lives: " + str(score - 1), 1000, (255, 0, 0))
+                if score == 0:
+                    konec()
+                    return None
+                print(score)
+                text1 = font.render("Lives: " + str(score), 1000, (255, 0, 0))
         else:
-            pygame.draw.line(screen, (255, 0, 0), (0, 250), hidingPos, 5)
-
+            pygame.draw.line(screen, (255, 0, 0), (0, 250), hidingPos, 1)
         clock.tick(30)
         text1 = font.render("Lives: " + str(score), 1000, (255, 0, 0))
         screen.blit(text1[0], (100, 50))
+        screen.blit(notrectarrow, (480, 30))
         pygame.display.flip()
     pygame.quit()
 
@@ -274,9 +304,9 @@ class Level_02(Level):
         Level.__init__(self, player)
         level2 = [
             [210, 100, 100, 900],
-            [210, 32, 1300, 300],
-            [210, 32, 200, 300],
-            [210, 32, 400, 700],
+            [210, 32, 1500, 300],
+            [210, 32, 400, 300],
+            [210, 32, 200, 700],
             [210, 32, 800, 500]
         ]
 
@@ -292,7 +322,8 @@ score02 = 0
 
 
 def main_Level2():
-    global score02
+    global score, level
+    level += 1
     pygame.init()
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
     screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
@@ -306,6 +337,9 @@ def main_Level2():
     player.level = current_level
 
     player.rect.x = 340
+    timer02 = 0
+    hidingPos02 = (-100, -100)
+    font02 = pygame.freetype.Font("Ore_Crusher/orecrusherrotal.ttf", 75)
     player.rect.y = SCREEN_HEIGHT - player.rect.height
     active_sprite_list.add(player)
 
@@ -314,17 +348,18 @@ def main_Level2():
     clock = pygame.time.Clock()
 
     while not done:
+        timer02 += 1
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     done = True
 
-            if player.rect.x == 100:
-                score02 += 1
-                print(score02)
-                if score02 == 10:
-                    print('Win Score')
-                    Win()
+            if player.rect.y == 200:
+                if score >= 1:
+                    main_Level3()
+                    return None
+                else:
+                    konec()
                     return None
 
             if event.type == pygame.KEYDOWN:
@@ -355,7 +390,131 @@ def main_Level2():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
+        if timer02 % 100 == 0:
+            screen.blit(notrectlaser, (0, 200))
+            screen.blit(notrectlaser2, (0, 600))
+            if laser.colliderect(player) or laser2.colliderect(player):
+                score -= 1
+                if score == 0:
+                    konec()
+                    return None
+                print(score)
+                text1 = font02.render("Lives: " + str(score), 1000, (255, 0, 0))
+        else:
+            pygame.draw.line(screen, (255, 0, 0), (0, 250), hidingPos02, 1)
+        text1 = font02.render("Lives: " + str(score), 1000, (255, 0, 0))
+        screen.blit(text1[0], (100, 50))
+        screen.blit(notrectarrow, (1600, 30))
+        clock.tick(30)
 
+        pygame.display.flip()
+    pygame.quit()
+
+
+class Level_03(Level):
+    def __init__(self, player):
+        Level.__init__(self, player)
+        level2 = [
+            [210, 100, 300, 900],
+            [210, 32, 1500, 300],
+            [210, 32, 600, 400],
+            [210, 32, 400, 800],
+            [210, 32, 800, 500]
+        ]
+
+        for platform in level2:
+            block = Platform(platform[0], platform[1])
+            block.rect.x = platform[2]
+            block.rect.y = platform[3]
+            block.player = self.player
+            self.platform_list.add(block)
+
+
+score03 = 0
+
+
+def main_Level3():
+    global score, level
+    level += 1
+    pygame.init()
+    size = [SCREEN_WIDTH, SCREEN_HEIGHT]
+    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+    pygame.display.set_caption("Платформер")
+    player = Player()
+    level_list = [Level_02(player)]
+    current_level_no = 0
+    current_level = level_list[current_level_no]
+
+    active_sprite_list = pygame.sprite.Group()
+    player.level = current_level
+
+    player.rect.x = 340
+    timer03 = 0
+    hidingPos03 = (-100, -100)
+    font03 = pygame.freetype.Font("Ore_Crusher/orecrusherrotal.ttf", 75)
+    player.rect.y = SCREEN_HEIGHT - player.rect.height
+    active_sprite_list.add(player)
+
+    done = False
+
+    clock = pygame.time.Clock()
+
+    while not done:
+        timer03 += 1
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    done = True
+
+            if player.rect.y == 200:
+                if score >= 1:
+                    Win()
+                    return None
+                else:
+                    konec()
+                    return None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    player.go_left()
+                    break
+                if event.key == pygame.K_d:
+                    player.go_right()
+                    break
+                if event.key == pygame.K_w:
+                    player.jump()
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT and player.change_x < 0:
+                    player.stop()
+                if event.key == pygame.K_RIGHT and player.change_x > 0:
+                    player.stop()
+
+        active_sprite_list.update()
+
+        current_level.update()
+
+        if player.rect.right > SCREEN_WIDTH:
+            player.rect.right = SCREEN_WIDTH
+
+        if player.rect.left < 0:
+            player.rect.left = 0
+
+        current_level.draw(screen)
+        active_sprite_list.draw(screen)
+        if timer03 % 100 == 0:
+            screen.blit(notrectlaser, (0, 200))
+            screen.blit(notrectlaser2, (0, 600))
+            if laser.colliderect(player) or laser2.colliderect(player):
+                score -= 1
+                if score == 0:
+                    konec()
+                    return None
+        else:
+            pygame.draw.line(screen, (255, 0, 0), (0, 250), hidingPos03, 1)
+        text1 = font03.render("Lives: " + str(score), 1000, (255, 0, 0))
+        screen.blit(text1[0], (100, 50))
+        screen.blit(notrectarrow, (1600, 30))
         clock.tick(30)
 
         pygame.display.flip()
@@ -391,6 +550,8 @@ SCREEN_WIDTH1, SCREEN_HEIGHT1 = 800, 500
 
 screen1 = pygame.display.set_mode((SCREEN_WIDTH1, SCREEN_HEIGHT1), pygame.FULLSCREEN)
 pygame.display.set_caption('Button Demo')
+backgr = pygame.image.load('osnPfut.jpg')
+backgr = pygame.transform.scale(backgr, (800, 500))
 
 exit_img = pygame.image.load('exit_btn.png').convert_alpha()
 
@@ -407,6 +568,7 @@ def konec():
     run = True
     while run:
         screen.fill((0, 0, 0))
+        screen.blit(backgr, (0, 0))
         if exit_button1.draw(screen):
             is_finish1 = True
             return is_finish1
@@ -454,6 +616,8 @@ pygame.font.init()
 WIN_FONT = pygame.freetype.Font("Ore_Crusher/orecrusherrotal.ttf", 75)
 textsurface1 = GAME_OVER_FONT.render('Some Text', False, (100, 100, 100))
 exit_button2 = Button(300, 300, exit_img, 0.8)
+backgro = pygame.image.load('osnPfut.jpg')
+backgro = pygame.transform.scale(backgro, (800, 500))
 
 
 def Win():
@@ -464,6 +628,7 @@ def Win():
     run = True
     while run:
         screen.fill((0, 0, 0))
+        screen.blit(backgro, (0, 0))
         if exit_button2.draw(screen):
             return None
         text_surface, rect = GAME_OVER_FONT.render("YOU WIN!", (0, 255, 0))
