@@ -390,7 +390,7 @@ def main_Level2():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
-        if timer02 % 100 == 0:
+        if timer02 % 90 == 0:
             screen.blit(notrectlaser, (0, 200))
             screen.blit(notrectlaser2, (0, 600))
             if laser.colliderect(player) or laser2.colliderect(player):
@@ -502,7 +502,7 @@ def main_Level3():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
-        if timer03 % 100 == 0:
+        if timer03 % 80 == 0:
             screen.blit(notrectlaser, (0, 200))
             screen.blit(notrectlaser2, (0, 600))
             if laser.colliderect(player) or laser2.colliderect(player):
