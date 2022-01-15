@@ -14,7 +14,6 @@ laser2 = notrectlaser.get_rect()
 arrow = notrectarrow.get_rect()
 laser.x, laser.y = 0, 200
 laser2.x, laser2.y = 0, 600
-arrow.x, arrow.y = 200, 200
 
 
 class Button:
@@ -62,6 +61,8 @@ exit_button = Button(450, 200, exit_img, 0.8)
 def menu():
     global is_start
     run = True
+    font = pygame.freetype.Font("Ore_Crusher/orecrusherrotal.ttf", 50)
+    text1 = font.render('SEASON RIDER', 500, (192, 255, 192))
     while run:
         screen.fill((202, 0, 100))
         screen.blit(back, (0, 0))
@@ -74,8 +75,12 @@ def menu():
             return None
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.K_1:
                 run = False
+                exit(0)
+                return
+
+        screen.blit(text1[0], (200, 100))
 
         pygame.display.update()
 
@@ -179,6 +184,7 @@ class Level(object):
         self.platform_list.update()
 
     def draw(self, screen):
+        global arrow
         if level == 1:
             bg = pygame.image.load('fon.jpg')
             bg = pygame.transform.scale(bg, (1920, 1080))
@@ -215,8 +221,9 @@ score = 5
 
 
 def main_Level1():
-    global score, screen, notrectlaser, level
+    global score, screen, notrectlaser, level, notrectarrow, arrow
     timer = 0
+    arrow.x, arrow.y = 480, 100
     font = pygame.freetype.Font("Ore_Crusher/orecrusherrotal.ttf", 75)
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
     screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
@@ -244,7 +251,13 @@ def main_Level1():
                 if event.key == pygame.K_1:
                     done = True
 
-            if player.rect.y == 200:
+            if score <= 1:
+                konec()
+                exit(0)
+                return
+            # if player.rect.y == 200:
+            if arrow.colliderect(player):
+                print(notrectarrow.get_rect())
                 if score >= 1:
                     main_Level2()
                     return None
@@ -280,21 +293,33 @@ def main_Level1():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
-        if timer % 100 == 0:
-            screen.blit(notrectlaser, (0, 200))
-            if laser.colliderect(player):
-                score -= 1
-                if score == 0:
-                    konec()
-                    return None
-                print(score)
-                text1 = font.render("Lives: " + str(score), 1000, (255, 0, 0))
+        if 100 < timer < 160:
+            print(timer)
+            if timer == 160:
+                screen.blit(notrectlaser, (0, 200))
+                if laser.colliderect(player):
+                    score -= 1
+                    if score == 0:
+                        konec()
+                        return None
+                    print(score)
+                    text1 = font.render("Lives: " + str(score), 1000, (255, 0, 0))
+                timer = 0
+            else:
+                screen.blit(notrectlaser, (0, 200))
+                if laser.colliderect(player):
+                    score -= 1
+                    if score == 0:
+                        konec()
+                        return None
+                    print(score)
+                    text1 = font.render("Lives: " + str(score), 1000, (255, 0, 0))
         else:
             pygame.draw.line(screen, (255, 0, 0), (0, 250), hidingPos, 1)
         clock.tick(30)
         text1 = font.render("Lives: " + str(score), 1000, (255, 0, 0))
         screen.blit(text1[0], (100, 50))
-        screen.blit(notrectarrow, (480, 30))
+        screen.blit(notrectarrow, (480, 100))
         pygame.display.flip()
     pygame.quit()
 
@@ -304,7 +329,7 @@ class Level_02(Level):
         Level.__init__(self, player)
         level2 = [
             [210, 100, 100, 900],
-            [210, 32, 1500, 300],
+            [210, 32, 1500, 250],
             [210, 32, 400, 300],
             [210, 32, 200, 700],
             [210, 32, 800, 500]
@@ -322,7 +347,8 @@ score02 = 0
 
 
 def main_Level2():
-    global score, level
+    global score, level, arrow
+    arrow = pygame.Rect(0, 0, 1600, 300)
     level += 1
     pygame.init()
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
@@ -354,7 +380,8 @@ def main_Level2():
                 if event.key == pygame.K_1:
                     done = True
 
-            if player.rect.y == 200:
+            if arrow.colliderect(player):
+                print(arrow)
                 if score >= 1:
                     main_Level3()
                     return None
@@ -390,16 +417,27 @@ def main_Level2():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
-        if timer02 % 90 == 0:
-            screen.blit(notrectlaser, (0, 200))
-            screen.blit(notrectlaser2, (0, 600))
-            if laser.colliderect(player) or laser2.colliderect(player):
-                score -= 1
-                if score == 0:
-                    konec()
-                    return None
-                print(score)
-                text1 = font02.render("Lives: " + str(score), 1000, (255, 0, 0))
+        if 90 < timer02 < 150:
+            if timer02 == 150:
+                screen.blit(notrectlaser, (0, 200))
+                screen.blit(notrectlaser2, (0, 600))
+                if laser.colliderect(player) or laser2.colliderect(player):
+                    score -= 1
+                    if score == 0:
+                        konec()
+                        return None
+                    print(score)
+                    text1 = font02.render("Lives: " + str(score), 1000, (255, 0, 0))
+                timer02 = 0
+            else:
+                screen.blit(notrectlaser, (0, 200))
+                if laser.colliderect(player):
+                    score -= 1
+                    if score == 0:
+                        konec()
+                        return None
+                    print(score)
+                    text1 = font02.render("Lives: " + str(score), 1000, (255, 0, 0))
         else:
             pygame.draw.line(screen, (255, 0, 0), (0, 250), hidingPos02, 1)
         text1 = font02.render("Lives: " + str(score), 1000, (255, 0, 0))
@@ -434,8 +472,9 @@ score03 = 0
 
 
 def main_Level3():
-    global score, level
+    global score, level, arrow
     level += 1
+    arrow = pygame.Rect(0, 0, 1600, 300)
     pygame.init()
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
     screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
@@ -466,7 +505,7 @@ def main_Level3():
                 if event.key == pygame.K_1:
                     done = True
 
-            if player.rect.y == 200:
+            if arrow.colliderect(player):
                 if score >= 1:
                     Win()
                     return None
