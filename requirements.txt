@@ -1,0 +1,5 @@
+button==0.0.3.post3
+pygame==2.1.0
+pygame-menu==4.2.0
+pyperclip==1.8.2
+typing-extensions==4.0.1
