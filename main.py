@@ -1,4 +1,4 @@
-import pygame
+import pygame, time, random
 
 pygame.mixer.init()
 pygame.init()
@@ -14,6 +14,8 @@ laser2 = notrectlaser.get_rect()
 arrow = notrectarrow.get_rect()
 laser.x, laser.y = 0, 200
 laser2.x, laser2.y = 0, 600
+starttime = time.time()
+showtime = time.time()
 
 
 class Button:
@@ -218,10 +220,11 @@ class Level_01(Level):
 
 
 score = 5
+mas = [0.5, 1]
 
 
 def main_Level1():
-    global score, screen, notrectlaser, level, notrectarrow, arrow
+    global score, screen, notrectlaser, level, notrectarrow, arrow, starttime, showtime, mas, gifimage
     timer = 0
     arrow.x, arrow.y = 480, 100
     font = pygame.freetype.Font("Ore_Crusher/orecrusherrotal.ttf", 75)
@@ -255,9 +258,8 @@ def main_Level1():
                 konec()
                 exit(0)
                 return
-            # if player.rect.y == 200:
+
             if arrow.colliderect(player):
-                print(notrectarrow.get_rect())
                 if score >= 1:
                     main_Level2()
                     return None
@@ -293,29 +295,21 @@ def main_Level1():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
-        if 100 < timer < 160:
-            print(timer)
-            if timer == 160:
-                screen.blit(notrectlaser, (0, 200))
-                if laser.colliderect(player):
-                    score -= 1
-                    if score == 0:
-                        konec()
-                        return None
-                    print(score)
-                    text1 = font.render("Lives: " + str(score), 1000, (255, 0, 0))
-                timer = 0
-            else:
-                screen.blit(notrectlaser, (0, 200))
-                if laser.colliderect(player):
-                    score -= 1
-                    if score == 0:
-                        konec()
-                        return None
-                    print(score)
-                    text1 = font.render("Lives: " + str(score), 1000, (255, 0, 0))
-        else:
-            pygame.draw.line(screen, (255, 0, 0), (0, 250), hidingPos, 1)
+        a = random.randint(0, 1)
+        q = random.randint(5, 10) - ((time.time() - starttime) % 60.0)
+        qq = mas[a] - ((time.time() - showtime) % 60.0)
+        if q <= 0:
+            screen.blit(notrectlaser, (0, 200))
+            starttime = time.time()
+            showtime = time.time()
+            if laser.colliderect(player):
+                score -= 1
+                if score == 0:
+                    konec()
+                    return None
+        elif qq >= 0:
+            screen.blit(notrectlaser, (0, 200))
+
         clock.tick(30)
         text1 = font.render("Lives: " + str(score), 1000, (255, 0, 0))
         screen.blit(text1[0], (100, 50))
@@ -343,11 +337,8 @@ class Level_02(Level):
             self.platform_list.add(block)
 
 
-score02 = 0
-
-
 def main_Level2():
-    global score, level, arrow
+    global score, screen, notrectlaser, level, notrectarrow, arrow, starttime, showtime, mas
     arrow = pygame.Rect(0, 0, 1600, 300)
     level += 1
     pygame.init()
@@ -381,7 +372,6 @@ def main_Level2():
                     done = True
 
             if arrow.colliderect(player):
-                print(arrow)
                 if score >= 1:
                     main_Level3()
                     return None
@@ -417,29 +407,32 @@ def main_Level2():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
-        if 90 < timer02 < 150:
-            if timer02 == 150:
-                screen.blit(notrectlaser, (0, 200))
-                screen.blit(notrectlaser2, (0, 600))
-                if laser.colliderect(player) or laser2.colliderect(player):
-                    score -= 1
-                    if score == 0:
-                        konec()
-                        return None
-                    print(score)
-                    text1 = font02.render("Lives: " + str(score), 1000, (255, 0, 0))
-                timer02 = 0
-            else:
-                screen.blit(notrectlaser, (0, 200))
-                if laser.colliderect(player):
-                    score -= 1
-                    if score == 0:
-                        konec()
-                        return None
-                    print(score)
-                    text1 = font02.render("Lives: " + str(score), 1000, (255, 0, 0))
-        else:
-            pygame.draw.line(screen, (255, 0, 0), (0, 250), hidingPos02, 1)
+        a = random.randint(0, 1)
+        q = random.randint(5, 10) - ((time.time() - starttime) % 60.0)
+        qq = mas[a] - ((time.time() - showtime) % 60.0)
+        if q <= 0:
+            screen.blit(notrectlaser, (0, 200))
+            starttime = time.time()
+            showtime = time.time()
+            if laser.colliderect(player):
+                score -= 1
+                if score == 0:
+                    konec()
+                    return None
+        elif qq >= 0:
+            screen.blit(notrectlaser, (0, 200))
+
+        if q <= 0:
+            screen.blit(notrectlaser, (0, 600))
+            starttime = time.time()
+            showtime = time.time()
+            if laser.colliderect(player):
+                score -= 1
+                if score == 0:
+                    konec()
+                    return None
+        elif qq >= 0:
+            screen.blit(notrectlaser, (0, 600))
         text1 = font02.render("Lives: " + str(score), 1000, (255, 0, 0))
         screen.blit(text1[0], (100, 50))
         screen.blit(notrectarrow, (1600, 30))
@@ -472,7 +465,7 @@ score03 = 0
 
 
 def main_Level3():
-    global score, level, arrow
+    global score, screen, notrectlaser, level, notrectarrow, arrow, starttime, showtime, mas
     level += 1
     arrow = pygame.Rect(0, 0, 1600, 300)
     pygame.init()
@@ -541,16 +534,32 @@ def main_Level3():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
-        if timer03 % 80 == 0:
+        a = random.randint(0, 1)
+        q = random.randint(3, 7) - ((time.time() - starttime) % 60.0)
+        qq = mas[a] - ((time.time() - showtime) % 60.0)
+        if q <= 0:
             screen.blit(notrectlaser, (0, 200))
-            screen.blit(notrectlaser2, (0, 600))
-            if laser.colliderect(player) or laser2.colliderect(player):
+            starttime = time.time()
+            showtime = time.time()
+            if laser.colliderect(player):
                 score -= 1
                 if score == 0:
                     konec()
                     return None
-        else:
-            pygame.draw.line(screen, (255, 0, 0), (0, 250), hidingPos03, 1)
+        elif qq >= 0:
+            screen.blit(notrectlaser, (0, 200))
+
+        if q <= 0:
+            screen.blit(notrectlaser, (0, 600))
+            starttime = time.time()
+            showtime = time.time()
+            if laser.colliderect(player):
+                score -= 1
+                if score == 0:
+                    konec()
+                    return None
+        elif qq >= 0:
+            screen.blit(notrectlaser, (0, 600))
         text1 = font03.render("Lives: " + str(score), 1000, (255, 0, 0))
         screen.blit(text1[0], (100, 50))
         screen.blit(notrectarrow, (1600, 30))
