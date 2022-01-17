@@ -13,7 +13,7 @@ laser = notrectlaser.get_rect()
 laser2 = notrectlaser.get_rect()
 arrow = notrectarrow.get_rect()
 laser.x, laser.y = 0, 200
-laser2.x, laser2.y = 0, 600
+laser2.x, laser2.y = 0, 650
 starttime = time.time()
 showtime = time.time()
 
@@ -295,9 +295,8 @@ def main_Level1():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
-        a = random.randint(0, 1)
         q = random.randint(5, 10) - ((time.time() - starttime) % 60.0)
-        qq = mas[a] - ((time.time() - showtime) % 60.0)
+        qq = 1.0 - ((time.time() - showtime) % 60.0)
         if q <= 0:
             screen.blit(notrectlaser, (0, 200))
             starttime = time.time()
@@ -338,7 +337,7 @@ class Level_02(Level):
 
 
 def main_Level2():
-    global score, screen, notrectlaser, level, notrectarrow, arrow, starttime, showtime, mas
+    global score, laser2, screen, notrectlaser, level, notrectarrow, arrow, starttime, showtime, mas
     arrow = pygame.Rect(0, 0, 1600, 300)
     level += 1
     pygame.init()
@@ -407,9 +406,8 @@ def main_Level2():
 
         current_level.draw(screen)
         active_sprite_list.draw(screen)
-        a = random.randint(0, 1)
         q = random.randint(5, 10) - ((time.time() - starttime) % 60.0)
-        qq = mas[a] - ((time.time() - showtime) % 60.0)
+        qq = 0.5 - ((time.time() - showtime) % 60.0)
         if q <= 0:
             screen.blit(notrectlaser, (0, 200))
             starttime = time.time()
@@ -423,10 +421,10 @@ def main_Level2():
             screen.blit(notrectlaser, (0, 200))
 
         if q <= 0:
-            screen.blit(notrectlaser, (0, 600))
+            screen.blit(notrectlaser, (0, 650))
             starttime = time.time()
             showtime = time.time()
-            if laser.colliderect(player):
+            if laser2.colliderect(player):
                 score -= 1
                 if score == 0:
                     konec()
@@ -465,7 +463,7 @@ score03 = 0
 
 
 def main_Level3():
-    global score, screen, notrectlaser, level, notrectarrow, arrow, starttime, showtime, mas
+    global score, screen, laser2, notrectlaser, level, notrectarrow, arrow, starttime, showtime, mas
     level += 1
     arrow = pygame.Rect(0, 0, 1600, 300)
     pygame.init()
@@ -553,7 +551,7 @@ def main_Level3():
             screen.blit(notrectlaser, (0, 600))
             starttime = time.time()
             showtime = time.time()
-            if laser.colliderect(player):
+            if laser2.colliderect(player):
                 score -= 1
                 if score == 0:
                     konec()
