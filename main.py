@@ -1,4 +1,4 @@
-import pygame, time, random
+import pygame, time, random, pygame.freetype
 
 pygame.mixer.init()
 pygame.init()
